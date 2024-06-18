@@ -1,0 +1,61 @@
+// tc O(4* alpha) = constant time
+
+ 
+class DisjointSet
+{
+    // t cO(N*M*logN)
+public:
+    vector<int> parent, size;
+    DisjointSet(int n)
+    {                         // disjoint set is not a graph its a different data structure
+        parent.resize(n + 1); // declaring a size of n+1 as it will take inot account of both 0 as well as one based graphs
+        size.resize(n + 1);
+        for (int i = 0; i <= n; i++)
+        {
+            parent[i] = i; // initialing marking parent of each node to itself
+            size[i] = 1;
+        }
+    }
+    void setParent(int node, int par)
+    {
+        parent[node] = par;
+    }
+    // finding the ultimate parent
+    int findUparent(int node)
+    {
+        if (node == parent[node])
+            return node;                                 // base case of the recursion(1 wala case)
+        return parent[node] = findUparent(parent[node]); // path compressing  to avoid doing repetitive tasks
+                                                         // storing the the ultimate parent of each and every node
+    }
+    bool uni(int u, int v)
+    { // is it possible to do union ops
+        int pu = findUparent(u);
+        int pv = findUparent(v);
+        if (pu == pv)
+            return false;
+        else
+        {
+            parent[pu] = pv;
+            return true;
+        }
+    }
+ 
+    void findUnionSize(int u, int v)
+    {
+        int ulp_u = findUparent(u);
+        int ulp_v = findUparent(v);
+        if (ulp_u == ulp_v)
+            return;
+        if (size[ulp_u] < size[ulp_v])
+        {
+            parent[ulp_u] = ulp_v; // attch to the larger and at the same incease the size of the larger one by the size of the smaller one
+            size[ulp_v] += size[ulp_u];
+        }
+        else
+        {
+            parent[ulp_v] = ulp_u; // attch to the larger and at the same incease the size of the larger one by the size of the smaller one
+            size[ulp_u] += size[ulp_v];
+        }
+    }
+};
