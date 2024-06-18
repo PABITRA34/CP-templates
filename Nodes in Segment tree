@@ -1,0 +1,72 @@
+E. Sereja and Brackets code
+
+#include<bits/stdc++.h>
+using namespace std;
+
+class Node{
+  public:
+  int o, c, f;
+  Node(int o, int c, int f){
+    this->o = o;
+    this->c = c;
+    this->f = f;
+  }
+  Node() {
+    this->o = 0;
+    this->c = 0;
+    this->f = 0;
+  }
+};
+Node mergeNodes(Node l, Node r) {
+  Node curr = Node(0, 0, 0);
+  int mn = min(l.o, r.c);
+  curr.f = (mn + (l.f + r.f));
+  curr.o = l.o + r.o - mn;
+  curr.c = l.c + r.c - mn;
+  return curr;
+}
+void buildSeg(int ind, int lo, int hi, Node seg[], string& s) {
+  if(lo == hi) {
+    Node temp = Node(0, 0, 0);
+    if(s[lo] == '(') {
+      temp.o = 1;
+    }else temp.c = 1;
+    seg[ind] = temp;
+    return;
+  }
+  int mid = (lo+hi)/2;
+  buildSeg(2*ind+1, lo, mid, seg, s);
+  buildSeg(2*ind+2, mid+1, hi, seg, s);
+  Node l = seg[2*ind+1];
+  Node r = seg[2*ind+2];
+  seg[ind] = mergeNodes(l, r);
+}
+
+
+
+Node getFull(int ind, int lo, int hi, int l, int r, Node seg[]) {
+  // if no overlap
+  if(lo > r || hi < l) {Node temp; return temp;}
+  if(lo >= l and r >= hi) return seg[ind];
+  int mid = (lo+hi)/2;
+  Node left = getFull(2*ind+1, lo, mid, l, r, seg);
+  Node right = getFull(2*ind+2, mid+1, hi, l, r, seg);
+  return mergeNodes(left, right);
+}
+
+int main() {
+  string s;
+  cin>>s;
+  int m; cin>>m;
+  int n = s.length();
+  Node seg[4*n];
+  buildSeg(0, 0, n-1, seg, s);
+  while(m) {
+    int l, r;cin>>l>>r;
+    l--;r--;
+    Node ans = getFull(0, 0, n-1, l, r, seg);
+    cout<<ans.f * 2<<endl;
+    m--;
+  }
+  return 0;
+}
