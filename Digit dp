@@ -1,0 +1,93 @@
+2801. Count Stepping Numbers in Range
+
+Given two positive integers low and high represented as strings, find the count of stepping numbers in the inclusive range [low, high].
+
+A stepping number is an integer such that all of its adjacent digits have an absolute difference of exactly 1.
+
+Return an integer denoting the count of stepping numbers in the inclusive range [low, high].
+
+Since the answer may be very large, return it modulo 109 + 7.
+
+Note: A stepping number should not have a leading zero.
+
+ 
+
+Example 1:
+
+Input: low = "1", high = "11"
+Output: 10
+Explanation: The stepping numbers in the range [1,11] are 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10. There are a total of 10 stepping numbers in the range. Hence, the output is 10.
+Example 2:
+
+Input: low = "90", high = "101"
+Output: 2
+Explanation: The stepping numbers in the range [90,101] are 98 and 101. There are a total of 2 stepping numbers in the range. Hence, the output is 2. 
+ 
+
+Constraints:
+
+1 <= int(low) <= int(high) < 10100
+1 <= low.length, high.length <= 100
+low and high consist of only digits.
+low and high don't have any leading zeros.
+
+
+
+  class Solution {
+public:
+// Digit Dp
+#define ll long long int
+ ll mod=1e9 +7;
+ll dp[101][2][2][11];
+ll stepCnt(ll i,bool tight,bool leading,ll prev,string& nums){
+    if(i==nums.size()){
+        return leading!=1;// stepping num can't have leading xeros
+    } 
+
+  if(dp[i][tight][leading][prev+1] !=-1) return dp[i][tight][leading][prev+1];
+
+  ll hi= tight ? nums[i]-'0' :9;
+  ll cnt=0;
+for(int di=0;di<=hi;di++){// trying every possible digit[0-hi] at curr cell
+    if(prev!=-1 && !leading){//curr cell neither the first cell nor the first non-zero 
+                            
+       if(abs(di - prev)==1){//cond
+        // cnt and   maintain the trends for tight and leading
+            cnt=(cnt%mod + stepCnt(i+1,tight&(di==hi),leading&(di==0),di,nums)%mod)%mod;
+       }
+       else continue;// not satisfying the diff=1 cond
+    }
+
+    else{// so can place any digit[0 to 9]
+        cnt=(cnt%mod + stepCnt(i+1,tight&(di==hi),leading&(di==0),di,nums)%mod)%mod;
+    }
+  }
+
+return dp[i][tight][leading][prev+1]=cnt%mod;
+}
+    int countSteppingNumbers(string low, string high) {
+        // [0,high] ->b
+        // [0,low] ->a
+        // [low,high]==b-1 but it is counting from low+1 to high so explicitly check for low
+      
+       ll extra=1;
+        for(int i=1;i<low.size();i++){
+            if(abs(low[i]-low[i-1]) !=1){
+                extra=0;
+                break;
+            }
+        }
+          memset(dp,-1,sizeof(dp));
+        ll b=stepCnt(0,1,1,-1,high)%mod;
+          memset(dp,-1,sizeof(dp));
+         ll a=stepCnt(0,1,1,-1,low)%mod;
+         ll ans=b-a;
+        ans%=mod;
+        ans+=mod;///mandatory when b-a becomes negative
+        ans%=mod;
+        
+        ans+=extra;
+        
+          return ans%mod;
+    }
+};
