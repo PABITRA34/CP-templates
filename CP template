@@ -1,0 +1,342 @@
+#include <bits/stdc++.h>
+using namespace std;
+// #include<ext/pb_ds/assoc_container.hpp>
+// #include<ext/pb_ds/tree_policy.hpp>
+// using namespace __gnu_pbds;
+#define ll long long int
+#define ld long double
+#define vi vector<ll>
+#define vvi vector<vi>
+#define pii pair<ll, ll>
+// #define oset tree<pii, null_type,less<pii>, rb_tree_tag,tree_order_statistics_node_update>//oset name name.order_of_key(#ele<k) *name.find_by_order(index) less_equal greater greater_equal
+#define vii vector<pii>
+#define rep(i, a, b) for (ll i = a; i < b; i++)
+#define rev(i, a, b) for (ll i = a; i >= b; i--)
+#define ff first
+#define ss second
+#define all(v) v.begin(), v.end()
+#define sorta(a) sort(a, a + n);
+#define sortv(v) sort(v.begin(), v.end());
+#define pb push_back
+#define setBits(x) __builtin_popcountll(x)
+#define yes cout << "YES" \
+                 << "\n";
+#define no cout << "NO" \
+                << "\n";
+#define in(n) \
+    ll n;     \
+    cin >> n;
+#define str(s) \
+    string s;  \
+    cin >> s;
+#define ain(a, n) \
+    ll a[n];      \
+    rep(i, 0, n) cin >> a[i];
+#define vin(v, n)    \
+    vector<ll> v(n); \
+    rep(i, 0, n) cin >> v[i];
+#define aout(a, n)                    \
+    rep(i, 0, n) cout << a[i] << " "; \
+    cout << "\n";
+#define vout(v, n)                    \
+    rep(i, 0, n) cout << v[i] << " "; \
+    cout << "\n";
+#define Reset(a, b) memset(a, b, sizeof(a));
+#define en cout << "\n";
+#define max_ele(a) *max_element(all(a));
+#define min_ele(a) *min_element(all(a));
+// #include "segmentTree.h"
+ll dr[4] = {0, 0, 1, -1};
+ll dc[4] = {1, -1, 0, 0};
+const int N = 1e5 + 5, MOD = 1e9 + 7;
+// # define LENGTH 100005
+#define LENGTH 2000001
+ 
+ll gcd(ll a, ll b) { return b == 0 ? a : gcd(b, a % b); }
+ll lcm(ll a, ll b) { return (a / gcd(a, b)) * b; }
+ 
+class DisjointSet
+{
+    // t cO(N*M*logN)
+public:
+    vector<int> parent, size;
+    DisjointSet(int n)
+    {                         // disjoint set is not a graph its a different data structure
+        parent.resize(n + 1); // declaring a size of n+1 as it will take inot account of both 0 as well as one based graphs
+        size.resize(n + 1);
+        for (int i = 0; i <= n; i++)
+        {
+            parent[i] = i; // initialing marking parent of each node to itself
+            size[i] = 1;
+        }
+    }
+    void setParent(int node, int par)
+    {
+        parent[node] = par;
+    }
+    // finding the ultimate parent
+    int findUparent(int node)
+    {
+        if (node == parent[node])
+            return node;                                 // base case of the recursion(1 wala case)
+        return parent[node] = findUparent(parent[node]); // path compressing  to avoid doing repetitive tasks
+                                                         // storing the the ultimate parent of each and every node
+    }
+    bool uni(int u, int v)
+    { // is it possible to do union ops
+        int pu = findUparent(u);
+        int pv = findUparent(v);
+        if (pu == pv)
+            return false;
+        else
+        {
+            parent[pu] = pv;
+            return true;
+        }
+    }
+ 
+    void findUnionSize(int u, int v)
+    {
+        int ulp_u = findUparent(u);
+        int ulp_v = findUparent(v);
+        if (ulp_u == ulp_v)
+            return;
+        if (size[ulp_u] < size[ulp_v])
+        {
+            parent[ulp_u] = ulp_v; // attch to the larger and at the same incease the size of the larger one by the size of the smaller one
+            size[ulp_v] += size[ulp_u];
+        }
+        else
+        {
+            parent[ulp_v] = ulp_u; // attch to the larger and at the same incease the size of the larger one by the size of the smaller one
+            size[ulp_u] += size[ulp_v];
+        }
+    }
+};
+ll powerM(ll x, ll y)
+{
+    if (y < 0ll)
+        return 0;
+    ll result = 1ll;
+    x = x % MOD;
+    if (x == 0ll)
+        return 0;
+    while (y > 0ll)
+    {
+        if (y & 1ll)
+            result = (result * x) % MOD;
+        y = y >> 1ll;
+        x = (x * x) % MOD;
+    }
+    return result;
+}
+ 
+ll modAdd(ll x, ll y)
+{
+    x %= MOD;
+    y %= MOD;
+    return (x + y) % MOD;
+}
+ 
+ll modMul(ll x, ll y, ll MOD)
+{
+    return ((x % MOD) * 1ll * (y % MOD)) % MOD;
+}
+ 
+ll biExp(ll x, ll y)
+{
+    if (y == 0)
+        return 1ll;
+    ll ans = 1ll;
+    x %= MOD;
+    while (y)
+    {
+        if (y & 1)
+            ans = modMul(ans, x, MOD);
+        x = modMul(x, x, MOD);
+        y >>= 1ll;
+    }
+    return ans;
+}
+ 
+ll mmi(ll x)
+{
+    return biExp(x, MOD - 2);
+}
+ 
+ll modDiv(ll x, ll y)
+{
+    return modMul(x, mmi(y), MOD);
+}
+ 
+ll fac[LENGTH];
+void factorial_tab()
+{
+    fac[0] = 1;
+    fac[1] = 1;
+    for (int i = 2; i < LENGTH; i++)
+        fac[i] = (fac[i - 1] % MOD * i % MOD) % MOD;
+    return;
+}
+ 
+ll nCr(ll n, ll k)
+{
+    if (n < k)
+        return 0;
+    if (k < 0)
+        return 0;
+    if (n == 0)
+        return 1;
+    return modDiv(fac[n], modMul(fac[k], fac[n - k], MOD));
+}
+ 
+ll nPr(ll n, ll r)
+{
+    return modDiv(fac[n], fac[n - r]);
+}
+ 
+ll modSub(ll A, ll B)
+{
+    return (A - B + MOD) % MOD;
+}
+ 
+vector<ll> printPrimeFactors(ll n)
+{
+    vector<ll> ans;
+    while (n % 2 == 0)
+    {
+        ans.pb(2);
+        n = n / 2;
+    }
+    for (int i = 3; i <= sqrtl(n); i = i + 2)
+    {
+        while (n % i == 0)
+        {
+            ans.pb(i);
+            n = n / i;
+        }
+    }
+    if (n > 2)
+        ans.pb(n);
+    return ans;
+}
+ 
+ll countBits(ll n) { return (ll)log2(n) + 1; }
+ 
+int countDivisors(int n)
+{
+    int cnt = 0;
+    for (int i = 1; i <= sqrt(n); i++)
+    {
+        if (n % i == 0)
+        {
+            if (n / i == i)
+                cnt++;
+            else
+                cnt = cnt + 2;
+        }
+    }
+    return cnt;
+}
+ 
+bool _2PowerH(ll n)
+{
+    if (n == 0)
+        return false;
+    return (ceil(log2(n)) == floor(log2(n)));
+}
+ 
+vector<bool> isprime(1e5 + 5, true);
+void sieve(int n)
+{
+    isprime[0] = false;
+    isprime[1] = false;
+    for (int i = 2; i * i <= n; ++i)
+    {
+        if (isprime[i])
+        {
+            for (int j = i * i; j <= n; j += i)
+                isprime[j] = false;
+        }
+    }
+}
+// struct comp{// conparator syntax
+//     bool operator() (const pii &a,const pii & b) const {
+//         ll l1=(a.second - a.first +1);
+//         ll l2=(b.second - b.first +1);
+ 
+//         if(l1==l2) return a.first < b.first;
+ 
+//         return l1>l2;
+//     }
+// };
+ 
+bool static comp(const pii &a, const pii &b)
+{
+    if (a.first < b.first)
+        return true;
+    else if (a.first == b.first)
+        return a.second > b.second;
+    return false;
+}
+
+ 
+
+
+
+
+void solve()
+{
+  ll n,q; cin>>n>>q;
+  BIT ft;
+  vector<ll>a(n+1);
+  for(ll i=1;i<=n;i++) {
+    cin>>a[i];
+  }
+  // preprocessing   
+    map<ll,ll>dc;
+  auto findSumDigit = [&](ll num){
+    ll sum=0;
+      while(num){
+        sum+= (num%10);
+        num/=10;
+      }
+    return sum;  
+  };
+ for(ll i=1;i<=n; i++){
+    ll num= a[i];
+    dc[num]= findSumDigit(num);
+    ft.update(i,dc[a[i]]);
+ }
+
+// process the queries 
+while(q--){
+    ll type; cin>>type;
+    if(type==1){
+        ll l, r; cin>>l>>r;
+        for(ll i=l;i<=r;i++){
+            ft.update(i,dc[a[i]]);
+        }
+    }
+    else{
+       ll id; cin>>id;
+        cout<<ft.get(id)<<"\n";
+    }
+}
+
+}
+int32_t main()
+{ 
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int t=1;
+    cin >> t;
+
+
+    while (t--){
+ 
+    solve();
+    }
+
+    return 0;
+}
