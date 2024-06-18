@@ -1,0 +1,90 @@
+// Binary Lifting  by Kartik arora
+// used to solve LCA queries efficiently 
+
+// calculate the up vector :- up[node][i] means ancestor of curr  node at a level 2^i up
+// in Nlog(N) time we can precompute the up vector N= no of nodes in the tree
+
+ll up[200001][21];
+vector<vector<ll>>tree(200001);
+
+void compute_up(ll node, ll par){
+    up[node][0]=par;
+
+    for(ll pi=1; pi<20; pi++){
+        if(up[node][pi-1] !=-1){
+            up[node][pi]= up[ up[node][pi-1] ][pi-1];
+        }
+        else up[node][pi]=-1;        
+    }
+
+    for( auto &child : tree[node]){
+        if(child != par) compute_up(child, node);
+    }
+}
+
+ll binary_lift(ll node, ll jumpleft){
+    if(node==-1 || jumpleft==0) return node;
+    
+     // sabse bada 2 ki power ka valid jump lena hai
+     for(ll i=19; i>=0; i--){
+
+        if( jumpleft >= (1<<i)){          
+            return binary_lift( up[node][i] , jumpleft - (1<<i) );            
+        }
+
+     }
+}
+
+// dfs to mark the level of each node
+vector<ll>lvl(200002,-1);
+void dfs(ll u, ll curr_lvl , ll par){
+    lvl[u]=curr_lvl;
+
+    for(auto &child: tree[u]){
+         if(child != par){
+            dfs(child, curr_lvl+1, u);
+         }
+    }
+}
+
+// lca in log(n) time using standard algo 
+//assuming v is more closer to the lca node l as compared to u
+// binary lift the node u by jump= diff of v- u lvls
+// case when v itself is lca node then i.e. u==v after the lift return it
+// else hm lca nhi balki lca se ek level pehle, two nodes lu and lv find krenge
+// at this step hm lu and lv tk reach kr chuke hai to abb finally binary lift de do node u ko by one step to get the lca
+
+ll lca(ll u, ll v){
+    if(lvl[v] >lvl[u]) swap(u,v);
+
+    u= binary_lift(u, lvl[u]- lvl[v]);
+
+    if(u==v) return u;// case when v is itself the lca 
+// else hm lca nhi balki lca se ek level pehle, two nodes lu and lv find krenge
+    for(ll i=19; i>=0; i--){
+         if(up[u][i] !=up[v][i]){
+            u=up[u][i];
+            v=up[v][i];
+         }
+    }
+// at this step hm lu and lv tk reach kr chuke hai to abb finally binary lift de do node u ko by one step to get the lca
+return binary_lift(u, 1);
+}
+
+void solve()
+{
+ll n,q; cin>>n>>q;
+for(ll i=2; i<=n; i++){
+    ll x; cin>>x;
+    tree[i].pb(x);
+    tree[x].pb(i);
+}
+compute_up(1,-1);
+dfs(1,1,-1);
+
+while(q--){
+    ll u,v; cin>>u>>v;
+    cout<<lca(u,v)<<"\n";
+}
+
+}
