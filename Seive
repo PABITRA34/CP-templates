@@ -1,0 +1,15 @@
+// tc O(n* log(log(n) )) 
+vector<bool> isprime(1e5 + 5, true);
+void sieve(int n)
+{
+    isprime[0] = false;
+    isprime[1] = false;
+    for (int i = 2; i * i <= n; ++i)
+    {
+        if (isprime[i])
+        {
+            for (int j = i * i; j <= n; j += i)
+                isprime[j] = false;
+        }
+    }
+}
