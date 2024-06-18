@@ -1,0 +1,13 @@
+#include <bits/stdc++.h>
+using namespace std;
+#include<ext/pb_ds/assoc_container.hpp>
+#include<ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+#define ll long long int
+#define ld long double
+#define vi vector<ll>
+#define vvi vector<vi>
+#define pii pair<ll, ll>
+#define oset tree<pii, null_type,less<pii>, rb_tree_tag,tree_order_statistics_node_update>
+//oset name name.order_of_key(#ele<k) 
+// *name.find_by_order(index) element present at the ith index both in log(n)
