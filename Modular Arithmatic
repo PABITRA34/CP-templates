@@ -1,0 +1,55 @@
+ll powerM(ll x, ll y)
+{
+    if (y < 0ll)
+        return 0;
+    ll result = 1ll;
+    x = x % MOD;
+    if (x == 0ll)
+        return 0;
+    while (y > 0ll)
+    {
+        if (y & 1ll)
+            result = (result * x) % MOD;
+        y = y >> 1ll;
+        x = (x * x) % MOD;
+    }
+    return result;
+}
+ 
+ll modAdd(ll x, ll y)
+{
+    x %= MOD;
+    y %= MOD;
+    return (x + y) % MOD;
+}
+ 
+ll modMul(ll x, ll y, ll MOD)
+{
+    return ((x % MOD) * 1ll * (y % MOD)) % MOD;
+}
+ 
+ll biExp(ll x, ll y)
+{
+    if (y == 0)
+        return 1ll;
+    ll ans = 1ll;
+    x %= MOD;
+    while (y)
+    {
+        if (y & 1)
+            ans = modMul(ans, x, MOD);
+        x = modMul(x, x, MOD);
+        y >>= 1ll;
+    }
+    return ans;
+}
+ 
+ll mmi(ll x)
+{
+    return biExp(x, MOD - 2);
+}
+ 
+ll modDiv(ll x, ll y)
+{
+    return modMul(x, mmi(y), MOD);
+}
