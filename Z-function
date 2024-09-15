@@ -1,9 +1,13 @@
 #include<bits/stdc++.h> 
 using namespace std; 
-
+/*
+What is the Z-array?
+For a given string S, the Z-array at position i (denoted as Z[i]) stores the length of the longest substring starting from S[i]
+that is also a prefix of the entire string S. In other words, it tells how many characters from position i onward match the prefix of the string.
+*/
 // Z array stores the max length prefix that
 // matches with substring starting at index i 
-vector<int> z_func(string s)
+vector<int> z_func(string s) 
 {
 	int n = s.size(); 
 	vector<int>z(n,0); 
