@@ -1,0 +1,76 @@
+/*
+Manacher Algo for palindrome check: O(n)
+viveeeeeeeeeeee
+Manacher algorithm helps us to find if a substring is a 
+palindrome in O(1) and O(N) precomputation.
+hint: each subtree string will representa substring of the global string
+so if we precompute the manacher algo for finding in O(1) whether [l,r] range
+substring is palindrome or not we are done
+we can easily build the ranges [l,r] for each root(node) with dfs
+and then for each node as the root check palindrome in constant time
+*/
+struct Manacher{
+    vector<int>p;
+    void run_manacher(string s){
+        int n= s.size();
+        p.assign(n,1);
+        int l=1, r=1;
+        for(int i=1;i<n;i++){
+            p[i] = max(0, min(r - i, (l + r - i >= 0 ? p[l + r - i] : 0)));// copying the symm part
+            while(i-p[i] >=0 && i+p[i]<n && s[i-p[i]]==s[i+p[i]]) p[i]++;//expand both sides
+            if(i+p[i] >r){//shift the boundary of box
+                l=i-p[i];
+                r=i+p[i];
+            }
+        }
+    }
+    void build(string s){
+        string t="";// hashed string
+        for(auto c:s){
+            t+= string("#")+c;// don't do t= t+... (as it will take O(n))
+        }
+        t+=string("#");
+        run_manacher(t);
+    }
+    int getLongest(int cen, bool odd){
+        int pos=2*cen +1 + (!odd);// for even center next(+1)
+        return p[pos]-1;
+    }
+    bool checkPalin(int l,int r){
+        if((r-l+1)<=getLongest((l+r)/2,l%2==r%2)) return 1;
+        return 0;
+    }
+}m;
+
+class Solution {
+public:
+     vector<pair<int,int>>range;
+     void dfs(int u,vector<int>& p,string&gs, string& s,int n,vector<int>adj[]){
+        int si=gs.size();
+        for(auto &v:adj[u]){
+            if(v==p[u]) continue;
+            dfs(v,p,gs,s,n,adj);           
+        }
+        gs+=s[u];
+        int end=gs.size()-1;
+        range[u]={si,end};        
+    }
+
+    vector<bool> findAnswer(vector<int>& p, string s) {
+        int n=s.size();
+        vector<bool>ans(n,false);
+        range.resize(n);
+        vector<int>adj[n];
+        for(int i=1;i<n;i++){
+            adj[p[i]].push_back(i);
+        }
+        string gs="";
+        dfs(0,p,gs,s,n,adj);
+        m.build(gs);        
+        for(int i=0;i<n;i++){
+            auto &[l,r]=range[i];            
+            ans[i]=m.checkPalin(l,r);
+        }
+        return ans;
+    }
+};
