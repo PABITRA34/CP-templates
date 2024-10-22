@@ -1,0 +1,53 @@
+class Solution {
+public:
+/*
+Algo for string matching in linera time: 
+KMP(LPS)
+trie
+z algo
+Rabin carp (hashing) tc O(m+n):
+       // Move from backwards for hash generation
+       // new hash = old hash*radix - s[i-1]*(radix)^m + s[i+m]
+we can further reduce the chances of collision by taking more prime and radix pair
+*/
+#define ll long long int
+const ll MOD1=1e9 +7;
+const ll MOD2=1e9 +33;
+   pair<ll,ll> hashValue(string s, ll RADIX1,ll RADIX2,ll m){
+       ll factor1=1,factor2=1 ,hash1=0,hash2=0;
+       for(ll i=m-1;i>=0;i--){
+           hash1= (hash1  +  (s[i]-'a')*factor1) %MOD1;
+           factor1= (factor1 * RADIX1) % MOD1;
+            hash2= (hash2  +  (s[i]-'a')*factor2) %MOD2;
+           factor2= (factor2 * RADIX2) % MOD2;
+       }
+       return {hash1 % MOD1,hash2 % MOD2};
+   }
+    int strStr(string haystack, string needle) {
+        ll n=haystack.size(), m=needle.size();
+        ll RADIX1=26,RADIX2=27, MAX_WEIGHT1=1, MAX_WEIGHT2=1;// max_weight: radix^m
+        pair<ll,ll>hayHash={0,0};
+        pair<ll,ll>needleHash=hashValue(needle,RADIX1,RADIX2,m);
+        if(m>n) return -1;
+        for(ll i=1;i<=m;i++){
+            MAX_WEIGHT1 = (MAX_WEIGHT1 * RADIX1) %MOD1;
+            MAX_WEIGHT2 = (MAX_WEIGHT2 * RADIX2) %MOD2;
+        }
+        for(ll i=0;i<=(n-m);i++){
+            if(i==0){
+               hayHash=hashValue(haystack,RADIX1,RADIX2,m);// first window hash
+            }else{
+                hayHash.first=( (hayHash.first * RADIX1)%MOD1 - ( (haystack[i-1]-'a')*MAX_WEIGHT1 )%MOD1 +  (haystack[i+m-1]-'a') +MOD1) %MOD1;
+                hayHash.second=( (hayHash.second * RADIX2)%MOD2 - ( (haystack[i-1]-'a')*MAX_WEIGHT2 )%MOD2 +  (haystack[i+m-1]-'a') +MOD2) %MOD2;
+            }
+            // still need matching due to collision among hash values tc still O(n*m)
+            // which can be brought to O(m+n) using double hashing to reduce collision to 10^-10(negliglbe)
+           /* for(ll j=0;j<m;j++){
+                if(haystack[i+j]!=needle[j]) break;
+                if(j==m-1) return i;
+            }*/
+            if(needleHash.first==hayHash.first && needleHash.second==hayHash.second) return i;
+        }
+        return -1;
+    }
+};
