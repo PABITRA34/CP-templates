@@ -1,0 +1,23 @@
+	//Function to find the shortest distance of all the vertices
+    //from the source vertex S.
+    #define pii pair<int,int>
+    vector <int> dijkstra(int n, vector<vector<int>> adj[], int src)
+    {
+        vector<int>dis(n+1,INT_MAX);
+        dis[src]=0;
+        priority_queue<pii,vector<pii>,greater<pii>>pq;
+        pq.push({0,src});
+        while(!pq.empty()){
+            int d=pq.top().first;
+            int curr=pq.top().second;
+            pq.pop();
+            for(auto &nbr:adj[curr]){
+                if(d+ nbr[1] < dis[nbr[0]]){
+                    dis[nbr[0]]=d+ nbr[1];
+                    pq.push({d+ nbr[1], nbr[0]});
+                }
+            }
+        }
+        
+    return  dis;        
+    }
