@@ -1,0 +1,25 @@
+//nth term of Fibbonacci sequence in log(n)) using Matrix Exponentiation Alishaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa youutube
+const int mod=1000000007;
+vector<vector<int>>matMul(vector<vector<int>>a,vector<vector<int>>b){
+    vector<vector<int>> res(2, vector<int>(2, 0)); 
+    for(int i=0;i<2;i++){
+        for(int j=0;j<2;j++){
+            for(int k=0;k<2;k++){
+                res[i][j]+=( a[i][k]%mod *1ll* b[k][j]%mod) %mod;
+                res[i][j]%=mod;
+            }
+        }
+    }
+    return res;
+}
+vector<vector<int>>matrixExp(vector<vector<int>>&a,int n){
+    if(n==1) return a;
+    vector<vector<int>>temp=matrixExp(a,n/2);
+    if(n%2==0) return matMul(temp,temp);
+    return matMul(temp, matMul(temp,a) );
+}
+int Solution::solve(int n) {    
+    vector<vector<int>>a={{1,1},{1,0}};   
+    vector<vector<int>>res=matrixExp(a,n);
+    return res[0][1]%mod;//01 || 10 both cell same ans
+}
