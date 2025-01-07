@@ -1,0 +1,73 @@
+#define ll long long int
+const int MOD = 1e9 + 7;
+
+struct Node {
+    ll sum = 0;  // Sum of the range
+    ll sqr = 0;  // Sum of squares of the range
+    ll lazy = 0; // Lazy propagation value
+};
+
+class SegmentTree {
+public:
+    int n;
+    vector<Node> tree;
+    SegmentTree(int n):n(n){
+       tree.resize(4*n +5);
+    }
+
+    // Apply the lazy value for node `si` in range `[l, r]`
+    void applyLazy(int si, int b, int e) {
+        if (tree[si].lazy != 0) {
+            ll len = e - b + 1;
+            ll lazyVal = tree[si].lazy;
+
+            // Apply logic
+            tree[si].sqr = (tree[si].sqr + 2 * lazyVal * tree[si].sum + lazyVal * lazyVal * len) % MOD;
+            tree[si].sum = (tree[si].sum + lazyVal * len) % MOD;
+
+            // Propagate to children if not a leaf node
+            if (b != e) {
+                int left = 2 * si + 1;
+                int right = 2 * si + 2;
+                tree[left].lazy = (tree[left].lazy + lazyVal) % MOD;
+                tree[right].lazy = (tree[right].lazy + lazyVal) % MOD;
+            }            
+            tree[si].lazy = 0;
+        }
+    }
+
+    // Merge two child nodes into the parent
+    Node merge(const Node &left, const Node &right) {
+        Node res;
+        res.sum = (left.sum + right.sum) % MOD;
+        res.sqr = (left.sqr + right.sqr) % MOD;
+        return res;
+    }
+
+    // Update range `[l, r]` by adding 1 to all elements
+    void updateRange(int si, int b, int e, int l, int r, int val) {
+        // Apply any pending lazy value
+        applyLazy(si, b, e);
+
+        // Out of range
+        if (r < b || l > e) return;
+
+        // Fully within range
+        if (b >= l && e <= r) {
+            tree[si].lazy = (tree[si].lazy + val) % MOD;
+            applyLazy(si, b, e);
+            return;
+        }
+
+        // Partially within range, propagate to children
+        int mid = (b + e) / 2;
+        int left = 2 * si + 1;
+        int right = 2 * si + 2;
+
+        updateRange(left, b, mid, l, r, val);
+        updateRange(right, mid + 1, e, l, r, val);
+
+        // Merge results of children
+        tree[si] = merge(tree[left], tree[right]);
+    }
+};
