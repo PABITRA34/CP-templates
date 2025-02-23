@@ -1,0 +1,38 @@
+    int mod5(int n, int k) {
+        int fact[5] = {1, 1, 2, 6, 24};
+        for (int i = 0; i < 5; i++)
+            fact[i] %= 5;
+        int inv[5];
+        for(int i = 0; i< 5; i++)
+        {
+            inv[i] = i;
+        }
+        int res = 1;
+        while (n || k) {
+            int m = n % 5, j = k % 5;
+            if (j > m)
+                return 0;
+            int num = fact[m], den = (fact[j] * fact[m - j]) % 5;
+            int invDen = 1;
+            for (int x = 1; x < 5; x++) {
+                if ((den * x) % 5 == 1) {
+                    invDen = x;
+                    break;
+                }
+            }
+            int cur = (num * invDen) % 5;
+            res = (res * cur) % 5;
+            n /= 5;
+            k /= 5;
+        }
+        return res;
+    }
+    int mod10(int n, int k) {
+        int a = ((n & k) == k) ? 1 : 0;
+        int b = mod5(n, k);
+        for (int x = 0; x < 10; x++) {
+            if (x % 2 == a && x % 5 == b)
+                return x;
+        }
+        return 0;
+    }
