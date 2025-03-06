@@ -71,3 +71,161 @@ public:
         tree[si] = merge(tree[left], tree[right]);
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////
+#define ll long long int
+const ll MOD = 1e9 + 7;
+
+struct Node {
+    ll maxVal = LLONG_MIN;  // Maximum value in range
+    ll minVal = LLONG_MAX;  // Minimum value in range
+    ll lazy = 0;            // Lazy propagation value
+};
+
+class SegmentTree {
+public:
+    ll n;
+    vector<Node> tree;
+
+    SegmentTree(ll n) : n(n) {
+        tree.resize(4 * n + 5);
+    }
+
+    // Apply the lazy value to the node at `si` in range `[b, e]`
+    void applyLazy(ll si, ll b, ll e) {
+        if (tree[si].lazy != 0) {
+            ll lazyVal = tree[si].lazy;
+
+            // Apply update
+            tree[si].maxVal += lazyVal;
+            tree[si].minVal += lazyVal;
+
+            // Propagate to children if not a leaf node
+            if (b != e) {
+                ll left = 2 * si + 1;
+                ll right = 2 * si + 2;
+                tree[left].lazy += lazyVal;
+                tree[right].lazy += lazyVal;
+            }
+
+            tree[si].lazy = 0;
+        }
+    }
+
+    // Merge two child nodes into a parent node
+    Node merge(const Node &left, const Node &right) {
+        Node res;
+        res.maxVal = max(left.maxVal, right.maxVal);
+        res.minVal = min(left.minVal, right.minVal);
+        return res;
+    }
+
+    // Build the segment tree from an array
+    void build(vector<ll> &arr, ll si, ll b, ll e) {
+        if (b == e) {
+            tree[si].maxVal = tree[si].minVal = arr[b];
+            return;
+        }
+
+        ll mid = (b + e) / 2;
+        ll left = 2 * si + 1;
+        ll right = 2 * si + 2;
+
+        build(arr, left, b, mid);
+        build(arr, right, mid + 1, e);
+
+        tree[si] = merge(tree[left], tree[right]);
+    }
+
+    // Update range `[l, r]` by adding `val`
+    void updateRange(ll si, ll b, ll e, ll l, ll r, ll val) {
+        applyLazy(si, b, e);
+
+        // Out of range
+        if (r < b || l > e) return;
+
+        // Fully within range
+        if (b >= l && e <= r) {
+            tree[si].lazy += val;
+            applyLazy(si, b, e);
+            return;
+        }
+
+        // Partially within range
+        ll mid = (b + e) / 2;
+        ll left = 2 * si + 1;
+        ll right = 2 * si + 2;
+
+        updateRange(left, b, mid, l, r, val);
+        updateRange(right, mid + 1, e, l, r, val);
+
+        // Merge results of children
+        tree[si] = merge(tree[left], tree[right]);
+    }
+
+    // Query the max and min values in range `[l, r]`
+    Node query(ll si, ll b, ll e, ll l, ll r) {
+        applyLazy(si, b, e);
+
+        // Out of range
+        if (r < b || l > e) return {LLONG_MIN, LLONG_MAX, 0};
+
+        // Fully within range
+        if (b >= l && e <= r) return tree[si];
+
+        // Partially within range
+        ll mid = (b + e) / 2;
+        ll left = 2 * si + 1;
+        ll right = 2 * si + 2;
+
+        Node leftRes = query(left, b, mid, l, r);
+        Node rightRes = query(right, mid + 1, e, l, r);
+
+        return merge(leftRes, rightRes);
+    }
+};
+class Solution {
+public:
+#define ll long long int
+    long long subArrayRanges(vector<int>&arr) {
+        ll n= arr.size(), tot=0;
+        vector<ll>v;
+        for(auto &it:arr) v.push_back(1ll*it);
+        SegmentTree st(n);
+        st.build(v, 0, 0, n - 1);
+
+        for(int i=0;i<n;i++){
+            for(int j=i;j<n;j++){
+                Node node= st.query(0, 0, n - 1, i,j);
+                ll mini= node.minVal;
+                ll maxi= node.maxVal;
+                tot += (maxi-mini);
+            }
+        }
+        return tot;
+    }
+};
+
